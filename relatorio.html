@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1117;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #login-screen {
+    background: #1a1d27;
+    border: 1px solid #2a2d3e;
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .logo-circle {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #f2c94c, #f2994a);
+    border-radius: 16px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-circle svg { width: 32px; height: 32px; fill: white; }
+
+  h1 { color: #ffffff; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .subtitle { color: #6b7280; font-size: 14px; margin-bottom: 32px; }
+
+  .input-label {
+    display: block;
+    text-align: left;
+    color: #9ca3af;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .input-group { position: relative; margin-bottom: 16px; }
+
+  .input-group input {
+    width: 100%;
+    background: #0f1117;
+    border: 1px solid #2a2d3e;
+    border-radius: 10px;
+    padding: 14px 44px 14px 42px;
+    color: #ffffff;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-group input:focus { border-color: #f2c94c; }
+  .input-group input::placeholder { color: #4b5563; }
+
+  .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4b5563;
+    pointer-events: none;
+  }
+
+  .toggle-eye {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #4b5563;
+    background: none;
+    border: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .toggle-eye:hover { color: #9ca3af; }
+
+  .btn-login {
+    width: 100%;
+    background: linear-gradient(135deg, #f2c94c, #f2994a);
+    color: #1a1100;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-login:hover { opacity: 0.9; }
+  .btn-login:active { opacity: 0.8; }
+
+  .error-msg {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 12px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 8px;
+    padding: 10px;
+    display: none;
+  }
+
+  #report-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    flex-direction: column;
+    background: #0f1117;
+  }
+
+  .report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #1a1d27;
+    border-bottom: 1px solid #2a2d3e;
+    flex-shrink: 0;
+  }
+
+  .report-title {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .report-title .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+  }
+
+  .user-badge {
+    background: #0f1117;
+    border: 1px solid #2a2d3e;
+    border-radius: 8px;
+    color: #9ca3af;
+    font-size: 13px;
+    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .user-badge strong { color: #f2c94c; }
+
+  .btn-header {
+    background: none;
+    border: 1px solid #2a2d3e;
+    border-radius: 8px;
+    color: #6b7280;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-header:hover { border-color: #f2c94c; color: #f2c94c; }
+  .btn-header.logout:hover { border-color: #ef4444; color: #ef4444; }
+
+  .btn-header svg { transition: transform 0.6s ease; }
+  .btn-header.spinning svg { transform: rotate(360deg); }
+
+  .refresh-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1a1d27;
+    border: 1px solid #2a2d3e;
+    border-radius: 10px;
+    padding: 12px 20px;
+    color: #ffffff;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .refresh-toast.show { transform: translateX(-50%) translateY(0); }
+  .refresh-toast .dot-green { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; flex-shrink: 0; }
+
+  .loading-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: #0f1117;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 10;
+  }
+
+  .loading-overlay.visible { display: flex; }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #2a2d3e;
+    border-top-color: #f2c94c;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-overlay p { color: #6b7280; font-size: 14px; }
+
+  .iframe-wrapper { position: relative; flex: 1; display: flex; flex-direction: column; }
+  iframe { flex: 1; border: none; width: 100%; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="logo-circle">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 3h7v11H3zm0 13h7v5H3zM13 13h8v8h-8zM13 3h8v8h-8z"/>
+    </svg>
+  </div>
+  <h1>Relatório Analítico</h1>
+  <p class="subtitle">Faça login para acessar o relatório</p>
+
+  <label class="input-label" for="username-input">Usuário</label>
+  <div class="input-group">
+    <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    <input type="text" id="username-input" placeholder="Digite seu usuário" />
+  </div>
+
+  <label class="input-label" for="password-input">Senha</label>
+  <div class="input-group">
+    <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+    <input type="password" id="password-input" placeholder="Digite sua senha" />
+    <button class="toggle-eye" onclick="togglePassword()" aria-label="Mostrar senha">
+      <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+    </button>
+  </div>
+
+  <button class="btn-login" onclick="checkLogin()">Entrar</button>
+  <p class="error-msg" id="error-msg">⚠ Usuário ou senha incorretos. Tente novamente.</p>
+</div>
+
+<div id="report-screen">
+  <div class="report-header">
+    <div class="report-title">
+      <span class="dot"></span>
+      Relatório Analítico
+    </div>
+    <div style="display:flex; align-items:center; gap:4px;">
+      <div class="user-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Olá, <strong id="logged-user"></strong>
+      </div>
+
+      <button class="btn-header" id="btn-refresh" onclick="refreshReport()" title="Atualizar relatório">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/>
+          <polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        Atualizar
+      </button>
+
+      <button class="btn-header logout" onclick="logout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sair
+      </button>
+    </div>
+  </div>
+
+  <div class="iframe-wrapper">
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="spinner"></div>
+      <p id="loading-text">Carregando relatório...</p>
+    </div>
+    <iframe id="pbi-iframe" src="" allowFullScreen="true" title="Relatório Power BI"></iframe>
+  </div>
+</div>
+
+<div class="refresh-toast" id="refresh-toast">
+  <span class="dot-green"></span>
+  Relatório atualizado com sucesso!
+</div>
+
+<script>
+  const USUARIOS = [
+    { usuario: "admin",   senha: "admin123"   },
+    { usuario: "cliente", senha: "cliente123" },
+    { usuario: "joao",    senha: "joao2024"   },
+  ];
+
+  const PBI_URL = "https://app.powerbi.com/view?r=eyJrIjoiNmIwZGYzOGItMjViZi00NjI2LTlhY2YtMDVjZmIxMGQ1NDg3IiwidCI6ImJlNTUwMzZkLWE0YmEtNGE2YS04MzNhLTNiNmNjODA4ZjI3MiJ9";
+
+  const inputUser  = document.getElementById('username-input');
+  const inputPass  = document.getElementById('password-input');
+  const errorMsg   = document.getElementById('error-msg');
+  const iframe     = document.getElementById('pbi-iframe');
+  const overlay    = document.getElementById('loading-overlay');
+  const loadingTxt = document.getElementById('loading-text');
+  const btnRefresh = document.getElementById('btn-refresh');
+  const toast      = document.getElementById('refresh-toast');
+
+  let isFirstLoad = true;
+
+  iframe.addEventListener('load', onIframeLoad);
+
+  [inputUser, inputPass].forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') checkLogin(); });
+  });
+
+  function checkLogin() {
+    const u = inputUser.value.trim();
+    const p = inputPass.value;
+    const match = USUARIOS.find(x => x.usuario === u && x.senha === p);
+    if (match) {
+      errorMsg.style.display = 'none';
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('logged-user').textContent = u;
+      document.getElementById('report-screen').style.display = 'flex';
+      isFirstLoad = true;
+      loadingTxt.textContent = 'Carregando relatório...';
+      overlay.classList.add('visible');
+      iframe.src = PBI_URL;
+    } else {
+      errorMsg.style.display = 'block';
+      inputPass.value = '';
+      inputPass.focus();
+    }
+  }
+
+  function onIframeLoad() {
+    overlay.classList.remove('visible');
+    if (!isFirstLoad) showToast();
+    isFirstLoad = false;
+    btnRefresh.classList.remove('spinning');
+  }
+
+  function refreshReport() {
+    loadingTxt.textContent = 'Atualizando dados...';
+    overlay.classList.add('visible');
+    btnRefresh.classList.add('spinning');
+    const url = iframe.src;
+    iframe.src = '';
+    setTimeout(() => { iframe.src = url; }, 300);
+  }
+
+  function showToast() {
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function logout() {
+    document.getElementById('report-screen').style.display = 'none';
+    iframe.src = '';
+    overlay.classList.remove('visible');
+    document.getElementById('login-screen').style.display = 'block';
+    inputUser.value = '';
+    inputPass.value = '';
+  }
+
+  let showingPassword = false;
+  function togglePassword() {
+    showingPassword = !showingPassword;
+    inputPass.type = showingPassword ? 'text' : 'password';
+    document.getElementById('eye-icon').innerHTML = showingPassword
+      ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>'
+      : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+</script>
+</body>
+</html>
